@@ -4,6 +4,7 @@ class Game {
   time: { start: DOMHighResTimeStamp; prev: DOMHighResTimeStamp };
   active_tetromino: Tetromino;
   tetrominos: Tetromino[];
+  speed = 250;
 
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
@@ -21,9 +22,14 @@ class Game {
     this.input();
   }
 
-  update = (_timestamp: DOMHighResTimeStamp) => {
+  update = (timestamp: DOMHighResTimeStamp) => {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBorder();
+    if (timestamp - this.time.prev > this.speed && this.active_tetromino.pos_y < 20) {
+        this.active_tetromino.pos_y += 1;
+        this.active_tetromino.build_tetromino();
+        this.time.prev = timestamp;
+        }
     this.active_tetromino.draw();
     window.requestAnimationFrame(this.update);
 
@@ -71,15 +77,9 @@ class Game {
 class Block extends Game {
   size = 20;
   margin = 2;
-  pos_x: number;
-  pos_y: number;
-  color: string;
 
-  constructor(pos_x: number, pos_y: number, color: string) {
+  constructor(public pos_x: number, public pos_y: number, public color: string) {
     super();
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
-    this.color = color;
   }
 
   draw() {
