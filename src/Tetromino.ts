@@ -12,7 +12,7 @@ export default class Tetromino {
   build_tetromino() {
     this.straight.blocks = [];
     this.straight.shape.forEach((_, i) => {
-      this.straight.blocks.push(new Block({x: this.pos_x + i, y: this.pos_y}, "blue"));
+      this.straight.blocks.push(new Block({x: this.pos_x + i, y: this.pos_y}, this.straight.color));
     });
   }
 }
