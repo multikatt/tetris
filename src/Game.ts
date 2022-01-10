@@ -31,17 +31,13 @@ export default class Game {
   }
 
   update = (timestamp: DOMHighResTimeStamp) => {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.createBorder();
-    if (
-      timestamp - this.time.prev > this.speed &&
-      this.active_tetromino.pos_y < 20
-    ) {
-      this.active_tetromino.pos_y += 1;
-      this.active_tetromino.update_tetromino();
+    let elapsed = timestamp - this.time.prev;
+    if (elapsed > this.speed) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.createBorder();
       this.time.prev = timestamp;
+      this.drawGame();
     }
-    this.drawGame();
     window.requestAnimationFrame(this.update);
   };
 
