@@ -5,6 +5,7 @@
   "source": "src/index.html",
   "scripts": {
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
+    "test-watch": "mocha -r ts-node/register --watch --watch-files src,tests 'tests/**/*.test.ts'",
     "start": "parcel",
     "build": "parcel build"
   },
@@ -16,7 +17,6 @@
     "@types/mocha": "^9.0.0",
     "chai": "^4.3.4",
     "mocha": "^9.1.3",
-    "nyc": "^15.1.0",
     "parcel": "^2.0.0",
     "prettier": "2.4.1",
     "ts-node": "^10.4.0",
