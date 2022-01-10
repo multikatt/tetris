@@ -14,9 +14,11 @@ export default class Tetromino {
 
   build_tetromino() {
     this.straight.blocks = [];
-    this.straight.shape.forEach((_, i) => {
-      this.straight.blocks.push(new Block({x: this.pos_x + i, y: this.pos_y}, this.straight.color));
-    });
+    this.straight.shape.forEach((row, irow) => {
+        row.forEach((col, icol) => {
+            if (col === 1) this.straight.blocks.push(new Block({x: this.pos_x + icol, y: this.pos_y + irow}, this.straight.color));
+        })
+    })
   }
 
   rotate(dir: "left" | "right" = "right") {
@@ -24,7 +26,6 @@ export default class Tetromino {
           this.straight.shape = this.straight.shape.map((_x, i, s) => s.map(y => y[i])).reverse();
         }
       if (dir == "right") {
-          this.straight.color = "green";
           this.straight.shape = this.straight.shape.reverse().map((_x, i, s) => s.map(_y => _y[i]));
         }
     }

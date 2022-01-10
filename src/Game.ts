@@ -82,7 +82,6 @@ export default class Game {
           break;
         case "Space":
         case "ArrowUp":
-          console.log("up");
           this.active_tetromino.rotate("right");
           this.active_tetromino.build_tetromino();
           break;
