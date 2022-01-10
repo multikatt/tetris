@@ -29,22 +29,23 @@ export default class Game {
   update = (timestamp: DOMHighResTimeStamp) => {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.createBorder();
-    if (timestamp - this.time.prev > this.speed
-        && this.active_tetromino.pos_y < 20) {
-            this.active_tetromino.pos_y += 1;
-            this.active_tetromino.build_tetromino();
-            this.time.prev = timestamp;
-        }
+    if (
+      timestamp - this.time.prev > this.speed &&
+      this.active_tetromino.pos_y < 20
+    ) {
+      this.active_tetromino.pos_y += 1;
+      this.active_tetromino.build_tetromino();
+      this.time.prev = timestamp;
+    }
     this.drawGame();
     window.requestAnimationFrame(this.update);
-
   };
 
   createBorder(width = 12, height = 22) {
     for (let ix = 0; ix < width; ix++) {
       for (let iy = 0; iy < height; iy++) {
         if (iy == 0 || iy == height - 1 || ix == 0 || ix == width - 1) {
-          this.border_blocks.push(new Block({x: ix,y: iy}, "grey"));
+          this.border_blocks.push(new Block({ x: ix, y: iy }, "grey"));
         }
       }
     }
@@ -52,7 +53,7 @@ export default class Game {
 
   drawGame() {
     this.border_blocks.forEach((b) => this.drawBlock(b));
-    this.active_tetromino.straight.blocks.forEach(b => this.drawBlock(b));
+    this.active_tetromino.straight.blocks.forEach((b) => this.drawBlock(b));
   }
 
   drawBlock(block: Block) {
@@ -70,13 +71,13 @@ export default class Game {
       switch (key.code) {
         case "ArrowLeft":
           if (this.active_tetromino.pos_x > 1) {
-            this.active_tetromino.pos_x -= 1
+            this.active_tetromino.pos_x -= 1;
             this.active_tetromino.build_tetromino();
           }
           break;
         case "ArrowRight":
           if (this.active_tetromino.pos_x < 7) {
-            this.active_tetromino.pos_x += 1
+            this.active_tetromino.pos_x += 1;
             this.active_tetromino.build_tetromino();
           }
           break;
@@ -91,6 +92,6 @@ export default class Game {
         default:
           break;
       }
-    })
+    });
   }
 }
