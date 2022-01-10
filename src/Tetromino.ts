@@ -18,7 +18,7 @@ export default class Tetromino {
   pos_x = 4;
   pos_y = 1;
 
-  build_tetromino() {
+  update_tetromino() {
     this.straight.blocks = [];
     this.straight.shape.forEach((row, irow) => {
       row.forEach((col, icol) => {

@@ -1,5 +1,6 @@
 import Tetromino from "./Tetromino";
 import Block from "./Block";
+import Board from "./Board";
 
 export default class Game {
   canvas: HTMLCanvasElement;
@@ -9,19 +10,22 @@ export default class Game {
   tetrominos: Tetromino[];
   border_blocks: Block[];
   speed = 250;
+  board: Board;
 
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d");
     this.time = { start: 0, prev: 0 };
     this.border_blocks = [];
+    this.board = new Board();
   }
 
   start() {
     this.createBorder();
     window.requestAnimationFrame(this.update);
     const tetro = new Tetromino();
-    tetro.build_tetromino();
+    tetro.update_tetromino();
+    this.board.add_tetromino(tetro);
     this.active_tetromino = tetro;
     this.input();
   }
@@ -34,7 +38,7 @@ export default class Game {
       this.active_tetromino.pos_y < 20
     ) {
       this.active_tetromino.pos_y += 1;
-      this.active_tetromino.build_tetromino();
+      this.active_tetromino.update_tetromino();
       this.time.prev = timestamp;
     }
     this.drawGame();
@@ -71,16 +75,16 @@ export default class Game {
       switch (key.code) {
         case "ArrowLeft":
           this.active_tetromino.move("left");
-          this.active_tetromino.build_tetromino();
+          this.active_tetromino.update_tetromino();
           break;
         case "ArrowRight":
           this.active_tetromino.move("right");
-          this.active_tetromino.build_tetromino();
+          this.active_tetromino.update_tetromino();
           break;
         case "Space":
         case "ArrowUp":
           this.active_tetromino.rotate("right");
-          this.active_tetromino.build_tetromino();
+          this.active_tetromino.update_tetromino();
           break;
         case "ArrowDown":
           console.log("down");
