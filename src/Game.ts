@@ -70,16 +70,12 @@ export default class Game {
     window.addEventListener("keyup", (key) => {
       switch (key.code) {
         case "ArrowLeft":
-          if (this.active_tetromino.pos_x > 1) {
-            this.active_tetromino.pos_x -= 1;
-            this.active_tetromino.build_tetromino();
-          }
+          this.active_tetromino.move("left");
+          this.active_tetromino.build_tetromino();
           break;
         case "ArrowRight":
-          if (this.active_tetromino.pos_x < 7) {
-            this.active_tetromino.pos_x += 1;
-            this.active_tetromino.build_tetromino();
-          }
+          this.active_tetromino.move("right");
+          this.active_tetromino.build_tetromino();
           break;
         case "Space":
         case "ArrowUp":

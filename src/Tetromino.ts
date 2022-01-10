@@ -33,6 +33,15 @@ export default class Tetromino {
     });
   }
 
+  move(dir: "left" | "right") {
+    if (dir == "left") {
+      this.pos_x -= 1;
+    }
+    if (dir == "right") {
+      this.pos_x += 1;
+    }
+  }
+
   rotate(dir: "left" | "right" = "right") {
     if (dir == "left") {
       this.straight.shape = this.straight.shape
