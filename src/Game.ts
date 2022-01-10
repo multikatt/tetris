@@ -6,10 +6,9 @@ export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   time: { start: DOMHighResTimeStamp; prev: DOMHighResTimeStamp };
-  active_tetromino: Tetromino;
   tetrominos: Tetromino[];
   border_blocks: Block[];
-  speed = 250;
+  speed = 500;
   board: Board;
 
   constructor() {
@@ -17,31 +16,30 @@ export default class Game {
     this.ctx = this.canvas.getContext("2d");
     this.time = { start: 0, prev: 0 };
     this.border_blocks = [];
+    this.create_border();
     this.board = new Board();
   }
 
   start() {
-    this.createBorder();
     window.requestAnimationFrame(this.update);
     const tetro = new Tetromino();
+    tetro.active = true;
     tetro.update_tetromino();
     this.board.add_tetromino(tetro);
-    this.active_tetromino = tetro;
     this.input();
   }
 
   update = (timestamp: DOMHighResTimeStamp) => {
     let elapsed = timestamp - this.time.prev;
     if (elapsed > this.speed) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.createBorder();
       this.time.prev = timestamp;
-      this.drawGame();
+      this.board.get_active_tetromino().move("down");
+      this.draw_game();
     }
     window.requestAnimationFrame(this.update);
   };
 
-  createBorder(width = 12, height = 22) {
+  create_border(width = 12, height = 22) {
     for (let ix = 0; ix < width; ix++) {
       for (let iy = 0; iy < height; iy++) {
         if (iy == 0 || iy == height - 1 || ix == 0 || ix == width - 1) {
@@ -51,12 +49,19 @@ export default class Game {
     }
   }
 
-  drawGame() {
-    this.border_blocks.forEach((b) => this.drawBlock(b));
-    this.active_tetromino.straight.blocks.forEach((b) => this.drawBlock(b));
+  draw_game() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.border_blocks.forEach((b) => this.draw_block(b));
+    this.draw_tetrominos();
   }
 
-  drawBlock(block: Block) {
+  draw_tetrominos() {
+    this.board.tetrominos.forEach(t => {
+      t.straight.blocks.forEach((b) => this.draw_block(b));
+    })
+  }
+
+  draw_block(block: Block) {
     this.ctx.fillStyle = block.color;
     this.ctx.fillRect(
       block.pos.x * (block.size + block.margin),
@@ -70,17 +75,17 @@ export default class Game {
     window.addEventListener("keyup", (key) => {
       switch (key.code) {
         case "ArrowLeft":
-          this.active_tetromino.move("left");
-          this.active_tetromino.update_tetromino();
+          this.board.get_active_tetromino().move("left");
+          this.draw_game();
           break;
         case "ArrowRight":
-          this.active_tetromino.move("right");
-          this.active_tetromino.update_tetromino();
+          this.board.get_active_tetromino().move("right");
+          this.draw_game();
           break;
         case "Space":
         case "ArrowUp":
-          this.active_tetromino.rotate("right");
-          this.active_tetromino.update_tetromino();
+          this.board.get_active_tetromino().rotate("right");
+          this.draw_game();
           break;
         case "ArrowDown":
           console.log("down");

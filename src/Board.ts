@@ -10,4 +10,8 @@ export default class Board {
   add_tetromino(tetro: Tetromino) {
     this.tetrominos.push(tetro);
   }
+
+  get_active_tetromino() : Tetromino {
+    return this.tetrominos.filter(t => t.active == true)[0];
+  }
 }

@@ -15,6 +15,8 @@ export default class Tetromino {
     color: "blue",
     blocks: [],
   };
+
+  active = false;
   pos_x = 4;
   pos_y = 1;
 
@@ -33,13 +35,17 @@ export default class Tetromino {
     });
   }
 
-  move(dir: "left" | "right") {
+  move(dir: "left" | "right" | "down") {
     if (dir == "left") {
       this.pos_x -= 1;
     }
     if (dir == "right") {
       this.pos_x += 1;
     }
+    if (dir == "down") {
+      this.pos_y += 1;
+    }
+    this.update_tetromino();
   }
 
   rotate(dir: "left" | "right" = "right") {
@@ -53,5 +59,6 @@ export default class Tetromino {
         .reverse()
         .map((_x, i, s) => s.map((_y) => _y[i]));
     }
+    this.update_tetromino();
   }
 }
