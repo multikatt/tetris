@@ -1,34 +1,28 @@
 import Block from "./Block";
+import Shapes from "./Shapes";
 
 export default class Tetromino {
-  straight: {
-    shape: number[][];
-    color: string;
-    blocks: Block[];
-  } = {
-    shape: [
-      [0, 0, 0, 0],
-      [1, 1, 1, 1],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ],
-    color: "blue",
-    blocks: [],
-  };
-
+  shape: number[][];
+  color: string;
+  blocks: Block[];
   active = false;
   pos_x = 4;
   pos_y = 1;
 
+  constructor(type: string) {
+    this.shape = Shapes[type].shape;
+    this.color = Shapes[type].color;
+  }
+
   update_tetromino() {
-    this.straight.blocks = [];
-    this.straight.shape.forEach((row, irow) => {
+    this.blocks = [];
+    this.shape.forEach((row, irow) => {
       row.forEach((col, icol) => {
         if (col === 1)
-          this.straight.blocks.push(
+          this.blocks.push(
             new Block(
               { x: this.pos_x + icol, y: this.pos_y + irow },
-              this.straight.color
+              this.color
             )
           );
       });
@@ -50,12 +44,12 @@ export default class Tetromino {
 
   rotate(dir: "left" | "right" = "right") {
     if (dir == "left") {
-      this.straight.shape = this.straight.shape
+      this.shape = this.shape
         .map((_x, i, s) => s.map((y) => y[i]))
         .reverse();
     }
     if (dir == "right") {
-      this.straight.shape = this.straight.shape
+      this.shape = this.shape
         .reverse()
         .map((_x, i, s) => s.map((_y) => _y[i]));
     }

@@ -8,7 +8,7 @@ export default class Game {
   time: { start: DOMHighResTimeStamp; prev: DOMHighResTimeStamp };
   tetrominos: Tetromino[];
   border_blocks: Block[];
-  speed = 500;
+  speed = 5000;
   board: Board;
 
   constructor() {
@@ -22,10 +22,11 @@ export default class Game {
 
   start() {
     window.requestAnimationFrame(this.update);
-    const tetro = new Tetromino();
+    const tetro = new Tetromino("L");
     tetro.active = true;
     tetro.update_tetromino();
     this.board.add_tetromino(tetro);
+    this.draw_game();
     this.input();
   }
 
@@ -57,7 +58,7 @@ export default class Game {
 
   draw_tetrominos() {
     this.board.tetrominos.forEach(t => {
-      t.straight.blocks.forEach((b) => this.draw_block(b));
+      t.blocks.forEach((b) => this.draw_block(b));
     })
   }
 
