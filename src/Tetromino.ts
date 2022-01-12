@@ -15,7 +15,7 @@ export default class Tetromino {
   }
 
   constructor(type?: string) {
-    if (type !== null) {
+    if (!type) {
       type = this.get_random_tetro();
     }
     this.shape = Shapes[type].shape;
