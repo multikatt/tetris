@@ -22,7 +22,7 @@ export default class Game {
 
   start() {
     window.requestAnimationFrame(this.update);
-    const tetro = new Tetromino("L");
+    const tetro = new Tetromino();
     tetro.active = true;
     tetro.update_tetromino();
     this.board.add_tetromino(tetro);

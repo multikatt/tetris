@@ -9,7 +9,15 @@ export default class Tetromino {
   pos_x = 4;
   pos_y = 1;
 
-  constructor(type: string) {
+  get_random_tetro() {
+    let shapes = ["I", "J", "L", "O", "S", "T", "Z"];
+    return shapes[Math.floor(Math.random() * shapes.length)];
+  }
+
+  constructor(type?: string) {
+    if (type !== null) {
+      type = this.get_random_tetro();
+    }
     this.shape = Shapes[type].shape;
     this.color = Shapes[type].color;
   }
@@ -44,14 +52,10 @@ export default class Tetromino {
 
   rotate(dir: "left" | "right" = "right") {
     if (dir == "left") {
-      this.shape = this.shape
-        .map((_x, i, s) => s.map((y) => y[i]))
-        .reverse();
+      this.shape = this.shape.map((_x, i, s) => s.map((y) => y[i])).reverse();
     }
     if (dir == "right") {
-      this.shape = this.shape
-        .reverse()
-        .map((_x, i, s) => s.map((_y) => _y[i]));
+      this.shape = this.shape.reverse().map((_x, i, s) => s.map((_y) => _y[i]));
     }
     this.update_tetromino();
   }
