@@ -1,22 +1,23 @@
-import Tetromino from "./Tetromino";
 import Block from "./Block";
 import Board from "./Board";
+import Tetromino from "./Tetromino";
 
 export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  time: { start: DOMHighResTimeStamp; prev: DOMHighResTimeStamp };
+  time: {start: DOMHighResTimeStamp; prev : DOMHighResTimeStamp};
   tetrominos: Tetromino[];
   border_blocks: Block[];
-  speed = 5000;
+  speed = 250;
   board: Board;
+  size = {w : 12, h: 22};
 
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d");
-    this.time = { start: 0, prev: 0 };
+    this.time = {start : 0, prev : 0};
     this.border_blocks = [];
-    this.create_border();
+    this.create_border(this.size.w, this.size.h);
     this.board = new Board();
   }
 
@@ -34,20 +35,48 @@ export default class Game {
     let elapsed = timestamp - this.time.prev;
     if (elapsed > this.speed) {
       this.time.prev = timestamp;
-      this.board.get_active_tetromino().move("down");
+      if (this.check_collision("down")) {
+        this.board.get_active_tetromino().move("down");
+      }
       this.draw_game();
     }
     window.requestAnimationFrame(this.update);
   };
 
-  create_border(width = 12, height = 22) {
+  create_border(width: number, height: number) {
     for (let ix = 0; ix < width; ix++) {
       for (let iy = 0; iy < height; iy++) {
         if (iy == 0 || iy == height - 1 || ix == 0 || ix == width - 1) {
-          this.border_blocks.push(new Block({ x: ix, y: iy }, "grey"));
+          this.border_blocks.push(new Block({x : ix, y : iy}, "grey"));
         }
       }
     }
+  }
+
+  check_collision(dir: "down"|"left"|"right"): boolean {
+    let current_t = this.board.get_active_tetromino();
+    let can_move = true;
+    current_t.shape.forEach((row, irow) => {
+      row.forEach((block, iblock) => {
+        if (block === 1) {
+          let blockpos = {
+            x : iblock + current_t.pos_x,
+            y : irow + current_t.pos_y
+          }
+
+          if (dir == "left" && blockpos.x <= 1) {
+            can_move = false;
+          }
+          else if (dir == "right" && blockpos.x >= this.size.w - 2) {
+            can_move = false;
+          }
+          else if (dir == "down" && blockpos.y >= this.size.h - 2) {
+            can_move = false;
+          }
+        }
+      });
+    });
+    return can_move;
   }
 
   draw_game() {
@@ -57,42 +86,40 @@ export default class Game {
   }
 
   draw_tetrominos() {
-    this.board.tetrominos.forEach(t => {
-      t.blocks.forEach((b) => this.draw_block(b));
-    })
+    this.board.tetrominos.forEach(
+        (t) => { t.blocks.forEach((b) => this.draw_block(b)); });
   }
 
   draw_block(block: Block) {
     this.ctx.fillStyle = block.color;
-    this.ctx.fillRect(
-      block.pos.x * (block.size + block.margin),
-      block.pos.y * (block.size + block.margin),
-      block.size,
-      block.size
-    );
+    this.ctx.fillRect(block.pos.x * (block.size + block.margin),
+                      block.pos.y * (block.size + block.margin), block.size,
+                      block.size);
   }
 
   input() {
     window.addEventListener("keyup", (key) => {
       switch (key.code) {
-        case "ArrowLeft":
+      case "ArrowLeft":
+        if (this.check_collision("left"))
           this.board.get_active_tetromino().move("left");
-          this.draw_game();
-          break;
-        case "ArrowRight":
+        this.draw_game();
+        break;
+      case "ArrowRight":
+        if (this.check_collision("right"))
           this.board.get_active_tetromino().move("right");
-          this.draw_game();
-          break;
-        case "Space":
-        case "ArrowUp":
-          this.board.get_active_tetromino().rotate("right");
-          this.draw_game();
-          break;
-        case "ArrowDown":
-          console.log("down");
-          break;
-        default:
-          break;
+        this.draw_game();
+        break;
+      case "Space":
+      case "ArrowUp":
+        this.board.get_active_tetromino().rotate("right");
+        this.draw_game();
+        break;
+      case "ArrowDown":
+        console.log("down");
+        break;
+      default:
+        break;
       }
     });
   }
