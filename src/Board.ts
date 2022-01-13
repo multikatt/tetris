@@ -14,4 +14,8 @@ export default class Board {
   get_active_tetromino() : Tetromino {
     return this.tetrominos.filter(t => t.active == true)[0];
   }
+
+  get_inactive_tetrominos() : Tetromino[] {
+    return this.tetrominos.filter(t => t.active == false);
+  }
 }

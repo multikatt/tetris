@@ -62,6 +62,21 @@ export default class Game {
   check_collision(dir: "down" | "left" | "right"): boolean {
     let current_t = this.board.get_active_tetromino();
     let can_move = true;
+    let can_move_down = (blockpos: { x: number; y: number }): boolean => {
+      if (blockpos.y >= this.size.h - 2) {
+        can_move = false;
+      } else {
+        this.board.get_inactive_tetrominos().forEach((t) => {
+          t.blocks.forEach((b) => {
+            if (b.pos.x == blockpos.x && b.pos.y == blockpos.y+1) {
+              can_move = false;
+            }
+          });
+        });
+      }
+      return can_move;
+    };
+
     current_t.shape.forEach((row, irow) => {
       row.forEach((block, iblock) => {
         if (block === 1) {
@@ -74,7 +89,7 @@ export default class Game {
             can_move = false;
           } else if (dir == "right" && blockpos.x >= this.size.w - 2) {
             can_move = false;
-          } else if (dir == "down" && blockpos.y >= this.size.h - 2) {
+          } else if (dir == "down" && !can_move_down(blockpos)) {
             can_move = false;
           }
         }
