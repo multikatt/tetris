@@ -1,21 +1,14 @@
-import Tetromino from "./Tetromino"
+import Tetromino from "./Tetromino";
+import Block from "./Block";
 
 export default class Board {
-  tetrominos: Tetromino[];
+  active_tetromino: Tetromino;
 
-  constructor() {
-    this.tetrominos = [];
-  }
+  constructor(public occupied_blocks: Block[] = []) {}
 
-  add_tetromino(tetro: Tetromino) {
-    this.tetrominos.push(tetro);
-  }
-
-  get_active_tetromino() : Tetromino {
-    return this.tetrominos.filter(t => t.active == true)[0];
-  }
-
-  get_inactive_tetrominos() : Tetromino[] {
-    return this.tetrominos.filter(t => t.active == false);
+  add_to_occupied_blocks(tetro: Tetromino) {
+    tetro.blocks.forEach((block) => {
+      this.occupied_blocks.push(block);
+    });
   }
 }

@@ -26,7 +26,7 @@ export default class Game {
     window.requestAnimationFrame(this.update);
     const tetro = new Tetromino();
     tetro.update_tetromino();
-    this.board.add_tetromino(tetro);
+    this.board.active_tetromino = tetro;
     this.draw_game();
     this.input();
   }
@@ -36,16 +36,15 @@ export default class Game {
     if (elapsed > this.speed) {
       this.prev_time = timestamp;
       if (this.check_collision("down")) {
-        this.board.get_active_tetromino().move("down");
+        this.board.active_tetromino.move("down");
       } else {
-        if (this.board.get_active_tetromino().pos_y === 1) {
-          this.board.get_active_tetromino().active = false;
+        if (this.board.active_tetromino.pos_y === 1) {
           this.game_state = "stopped";
         } else {
-          this.board.get_active_tetromino().active = false;
+          this.board.add_to_occupied_blocks(this.board.active_tetromino);
           const tetro = new Tetromino();
           tetro.update_tetromino();
-          this.board.add_tetromino(tetro);
+          this.board.active_tetromino = tetro;
         }
       }
       this.draw_game();
@@ -65,18 +64,16 @@ export default class Game {
   }
 
   check_collision(dir: "down" | "left" | "right"): boolean {
-    let current_t = this.board.get_active_tetromino();
+    let current_t = this.board.active_tetromino;
     let can_move = true;
     let can_move_down = (blockpos: { x: number; y: number }): boolean => {
       if (blockpos.y >= this.size.h - 2) {
         can_move = false;
       } else {
-        this.board.get_inactive_tetrominos().forEach((t) => {
-          t.blocks.forEach((b) => {
-            if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
-              can_move = false;
-            }
-          });
+        this.board.occupied_blocks.forEach((b) => {
+          if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
+            can_move = false;
+          }
         });
       }
       return can_move;
@@ -110,9 +107,8 @@ export default class Game {
   }
 
   draw_tetrominos() {
-    this.board.tetrominos.forEach((t) => {
-      t.blocks.forEach((b) => this.draw_block(b));
-    });
+    this.board.active_tetromino.blocks.forEach((b) => this.draw_block(b));
+    this.board.occupied_blocks.forEach((b) => this.draw_block(b));
   }
 
   draw_block(block: Block) {
@@ -131,17 +127,17 @@ export default class Game {
         switch (key.code) {
           case "ArrowLeft":
             if (this.check_collision("left"))
-              this.board.get_active_tetromino().move("left");
+              this.board.active_tetromino.move("left");
             this.draw_game();
             break;
           case "ArrowRight":
             if (this.check_collision("right"))
-              this.board.get_active_tetromino().move("right");
+              this.board.active_tetromino.move("right");
             this.draw_game();
             break;
           case "Space":
           case "ArrowUp":
-            this.board.get_active_tetromino().rotate("right");
+            this.board.active_tetromino.rotate("right");
             this.draw_game();
             break;
           case "ArrowDown":

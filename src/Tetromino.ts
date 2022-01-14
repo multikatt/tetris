@@ -5,7 +5,6 @@ export default class Tetromino {
   shape: number[][];
   color: string;
   blocks: Block[];
-  active = true;
   pos_x = 4;
   pos_y = 1;
 
