@@ -11,6 +11,7 @@ export default class Game {
   speed = 250;
   board: Board;
   size = { w: 12, h: 22 };
+  game_state: "running" | "stopped" = "running";
 
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
@@ -38,15 +39,21 @@ export default class Game {
       if (this.check_collision("down")) {
         this.board.get_active_tetromino().move("down");
       } else {
-        this.board.get_active_tetromino().active = false;
-        const tetro = new Tetromino();
-        tetro.active = true;
-        tetro.update_tetromino();
-        this.board.add_tetromino(tetro);
+        if (this.board.get_active_tetromino().pos_y === 1) {
+          this.board.get_active_tetromino().active = false;
+          this.game_state = "stopped";
+        } else {
+          this.board.get_active_tetromino().active = false;
+          const tetro = new Tetromino();
+          tetro.active = true;
+          tetro.update_tetromino();
+          this.board.add_tetromino(tetro);
+        }
       }
       this.draw_game();
     }
-    window.requestAnimationFrame(this.update);
+    if (this.game_state === "running")
+      window.requestAnimationFrame(this.update);
   };
 
   create_border(width: number, height: number) {
@@ -68,7 +75,7 @@ export default class Game {
       } else {
         this.board.get_inactive_tetrominos().forEach((t) => {
           t.blocks.forEach((b) => {
-            if (b.pos.x == blockpos.x && b.pos.y == blockpos.y+1) {
+            if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
               can_move = false;
             }
           });
@@ -122,27 +129,29 @@ export default class Game {
 
   input() {
     window.addEventListener("keyup", (key) => {
-      switch (key.code) {
-        case "ArrowLeft":
-          if (this.check_collision("left"))
-            this.board.get_active_tetromino().move("left");
-          this.draw_game();
-          break;
-        case "ArrowRight":
-          if (this.check_collision("right"))
-            this.board.get_active_tetromino().move("right");
-          this.draw_game();
-          break;
-        case "Space":
-        case "ArrowUp":
-          this.board.get_active_tetromino().rotate("right");
-          this.draw_game();
-          break;
-        case "ArrowDown":
-          console.log("down");
-          break;
-        default:
-          break;
+      if (this.game_state == "running") {
+        switch (key.code) {
+          case "ArrowLeft":
+            if (this.check_collision("left"))
+              this.board.get_active_tetromino().move("left");
+            this.draw_game();
+            break;
+          case "ArrowRight":
+            if (this.check_collision("right"))
+              this.board.get_active_tetromino().move("right");
+            this.draw_game();
+            break;
+          case "Space":
+          case "ArrowUp":
+            this.board.get_active_tetromino().rotate("right");
+            this.draw_game();
+            break;
+          case "ArrowDown":
+            console.log("down");
+            break;
+          default:
+            break;
+        }
       }
     });
   }
