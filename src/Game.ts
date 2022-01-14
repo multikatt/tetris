@@ -25,7 +25,6 @@ export default class Game {
   start() {
     window.requestAnimationFrame(this.update);
     const tetro = new Tetromino();
-    tetro.active = true;
     tetro.update_tetromino();
     this.board.add_tetromino(tetro);
     this.draw_game();
@@ -45,7 +44,6 @@ export default class Game {
         } else {
           this.board.get_active_tetromino().active = false;
           const tetro = new Tetromino();
-          tetro.active = true;
           tetro.update_tetromino();
           this.board.add_tetromino(tetro);
         }
