@@ -5,18 +5,18 @@ import Tetromino from "./Tetromino";
 export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  time: { start: DOMHighResTimeStamp; prev: DOMHighResTimeStamp };
+  prev_time: DOMHighResTimeStamp;
   tetrominos: Tetromino[];
   border_blocks: Block[];
-  speed = 250;
   board: Board;
+  speed = 250;
   size = { w: 12, h: 22 };
   game_state: "running" | "stopped" = "running";
 
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d");
-    this.time = { start: 0, prev: 0 };
+    this.prev_time = 0;
     this.border_blocks = [];
     this.create_border(this.size.w, this.size.h);
     this.board = new Board();
@@ -32,9 +32,9 @@ export default class Game {
   }
 
   update = (timestamp: DOMHighResTimeStamp) => {
-    let elapsed = timestamp - this.time.prev;
+    let elapsed = timestamp - this.prev_time;
     if (elapsed > this.speed) {
-      this.time.prev = timestamp;
+      this.prev_time = timestamp;
       if (this.check_collision("down")) {
         this.board.get_active_tetromino().move("down");
       } else {
