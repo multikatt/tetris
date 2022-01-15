@@ -41,8 +41,9 @@ export default class Game {
         if (this.board.active_tetromino.pos_y === 1) {
           this.game_state = "stopped";
         } else {
-          this.board.add_to_occupied_blocks(this.board.active_tetromino);
-          const tetro = new Tetromino();
+          if (!this.contains_full_rows()) {
+            this.board.add_to_occupied_blocks(this.board.active_tetromino);
+          }
           tetro.update_tetromino();
           this.board.active_tetromino = tetro;
         }
@@ -61,6 +62,52 @@ export default class Game {
         }
       }
     }
+  }
+
+  contains_full_rows(): boolean {
+    let full_rows: number[] = [];
+
+    // filter out one block per row:
+    let single_block_per_row = this.board.active_tetromino.blocks.filter(
+      (b, i, o) => o.map((b) => b.pos.y).indexOf(b.pos.y) == i
+    );
+
+    // check the single block for each row:
+    single_block_per_row.forEach((block) => {
+      // count number of blocks occupied by current tetro on current row
+      let current_t = this.board.active_tetromino.blocks.filter(
+        (t) => t.pos.y === block.pos.y
+      );
+
+      // count number of other blocks
+      let current_row = this.board.occupied_blocks.filter(
+        (bb) => bb.pos.y == block.pos.y
+      );
+
+      let full_row = current_t.length + current_row.length == this.size.w - 2;
+
+      if (full_row) {
+        full_rows.push(block.pos.y);
+      }
+    });
+
+    if (full_rows.length > 0) {
+      // add current tetro so that blocks not on a full row doesn't disappear
+      this.board.add_to_occupied_blocks(this.board.active_tetromino);
+
+      // filter out full rows
+      full_rows.forEach((r) => {
+        this.board.occupied_blocks = this.board.occupied_blocks.filter(
+          (b) => b.pos.y != r
+        );
+        this.board.occupied_blocks
+          .filter((b) => b.pos.y < r)
+          .forEach((b) => (b.pos.y += 1));
+      });
+      return true;
+    }
+
+    return false;
   }
 
   check_collision(dir: "down" | "left" | "right"): boolean {
