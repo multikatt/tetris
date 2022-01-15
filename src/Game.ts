@@ -217,7 +217,9 @@ export default class Game {
             this.draw_game();
             break;
           case "ArrowDown":
-            console.log("down");
+            while (this.check_collision("down"))
+              this.board.active_tetromino.move("down");
+            this.draw_game();
             break;
           default:
             break;
