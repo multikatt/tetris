@@ -44,6 +44,7 @@ export default class Game {
           if (!this.contains_full_rows()) {
             this.board.add_to_occupied_blocks(this.board.active_tetromino);
           }
+          const tetro = new Tetromino();
           tetro.update_tetromino();
           this.board.active_tetromino = tetro;
         }
@@ -126,6 +127,34 @@ export default class Game {
       return can_move;
     };
 
+    let can_move_sideways = (
+      blockpos: { x: number; y: number },
+      dir: "left" | "right"
+    ): boolean => {
+      if (dir == "left") {
+        if (blockpos.x <= 1) {
+          can_move = false;
+        }
+      } else if (dir == "right") {
+        if (blockpos.x >= this.size.w - 2) {
+          can_move = false;
+        }
+      }
+      this.board.occupied_blocks.forEach((b) => {
+        if (dir == "left") {
+          if (b.pos.y == blockpos.y && b.pos.x == blockpos.x - 1) {
+            can_move = false;
+          }
+        } else if (dir == "right") {
+          if (b.pos.y == blockpos.y && b.pos.x == blockpos.x + 1) {
+            can_move = false;
+          }
+        }
+      });
+
+      return can_move;
+    };
+
     current_t.shape.forEach((row, irow) => {
       row.forEach((block, iblock) => {
         if (block === 1) {
@@ -134,9 +163,9 @@ export default class Game {
             y: irow + current_t.pos_y,
           };
 
-          if (dir == "left" && blockpos.x <= 1) {
+          if (dir == "left" && !can_move_sideways(blockpos, "left")) {
             can_move = false;
-          } else if (dir == "right" && blockpos.x >= this.size.w - 2) {
+          } else if (dir == "right" && !can_move_sideways(blockpos, "right")) {
             can_move = false;
           } else if (dir == "down" && !can_move_down(blockpos)) {
             can_move = false;
