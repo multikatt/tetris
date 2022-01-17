@@ -153,22 +153,23 @@ export default class Tetromino {
       else return false;
     };
 
+    let wanted_state: number;
+    let tmp_shape: number[][];
+
     if (dir == "left") {
-      this.shape = this.shape.map((_x, i, s) => s.map((y) => y[i])).reverse();
-      this.rotation_state = (this.rotation_state + 3) % 4;
+      wanted_state = (this.rotation_state + 3) % 4;
+      tmp_shape = this.shape.map((_x, i, s) => s.map((y) => y[i])).reverse();
     }
     if (dir == "right") {
-      let wanted_state = (this.rotation_state + 1) % 4;
-      let tmp_shape = this.shape
-        .reverse()
-        .map((_x, i, s) => s.map((_y) => _y[i]));
-      let found_solution = check_collision(wanted_state, tmp_shape);
-      if (found_solution != false) {
-        this.pos_x += found_solution[0];
-        this.pos_y += found_solution[1];
-        this.shape = tmp_shape;
-        this.rotation_state = wanted_state;
-      }
+      wanted_state = (this.rotation_state + 1) % 4;
+      tmp_shape = this.shape.reverse().map((_x, i, s) => s.map((_y) => _y[i]));
+    }
+    let found_solution = check_collision(wanted_state, tmp_shape);
+    if (found_solution != false) {
+      this.pos_x += found_solution[0];
+      this.pos_y += found_solution[1];
+      this.shape = tmp_shape;
+      this.rotation_state = wanted_state;
     }
     this.update_tetromino();
   }
