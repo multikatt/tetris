@@ -7,7 +7,6 @@ export default class Game {
   ctx: CanvasRenderingContext2D;
   prev_time: DOMHighResTimeStamp;
   tetrominos: Tetromino[];
-  border_blocks: Block[];
   board: Board;
   speed = 250;
   size = { w: 12, h: 22 };
@@ -17,9 +16,8 @@ export default class Game {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d");
     this.prev_time = 0;
-    this.border_blocks = [];
-    this.create_border(this.size.w, this.size.h);
     this.board = new Board();
+    this.create_border(this.size.w, this.size.h);
   }
 
   start() {
@@ -59,7 +57,9 @@ export default class Game {
     for (let ix = 0; ix < width; ix++) {
       for (let iy = 0; iy < height; iy++) {
         if (iy == 0 || iy == height - 1 || ix == 0 || ix == width - 1) {
-          this.border_blocks.push(new Block({ x: ix, y: iy }, "grey"));
+          this.board.occupied_blocks.push(
+            new Block({ x: ix, y: iy }, "grey", true)
+          );
         }
       }
     }
@@ -85,7 +85,7 @@ export default class Game {
         (bb) => bb.pos.y == block.pos.y
       );
 
-      let full_row = current_t.length + current_row.length == this.size.w - 2;
+      let full_row = current_t.length + current_row.length == this.size.w;
 
       if (full_row) {
         full_rows.push(block.pos.y);
@@ -99,11 +99,13 @@ export default class Game {
       // filter out full rows
       full_rows.forEach((r) => {
         this.board.occupied_blocks = this.board.occupied_blocks.filter(
-          (b) => b.pos.y != r
+          (b) => b.pos.y != r || b.border_block == true
         );
         this.board.occupied_blocks
-          .filter((b) => b.pos.y < r)
-          .forEach((b) => (b.pos.y += 1));
+          .filter((b) => b.pos.y < r && b.border_block == false)
+          .forEach((b) => {
+            b.pos.y += 1;
+          });
       });
       return true;
     }
@@ -115,15 +117,11 @@ export default class Game {
     let current_t = this.board.active_tetromino;
     let can_move = true;
     let can_move_down = (blockpos: { x: number; y: number }): boolean => {
-      if (blockpos.y >= this.size.h - 2) {
-        can_move = false;
-      } else {
-        this.board.occupied_blocks.forEach((b) => {
-          if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
-            can_move = false;
-          }
-        });
-      }
+      this.board.occupied_blocks.forEach((b) => {
+        if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
+          can_move = false;
+        }
+      });
       return can_move;
     };
 
@@ -131,15 +129,6 @@ export default class Game {
       blockpos: { x: number; y: number },
       dir: "left" | "right"
     ): boolean => {
-      if (dir == "left") {
-        if (blockpos.x <= 1) {
-          can_move = false;
-        }
-      } else if (dir == "right") {
-        if (blockpos.x >= this.size.w - 2) {
-          can_move = false;
-        }
-      }
       this.board.occupied_blocks.forEach((b) => {
         if (dir == "left") {
           if (b.pos.y == blockpos.y && b.pos.x == blockpos.x - 1) {
@@ -178,7 +167,6 @@ export default class Game {
 
   draw_game() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.border_blocks.forEach((b) => this.draw_block(b));
     this.draw_tetrominos();
   }
 
