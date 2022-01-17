@@ -213,7 +213,18 @@ export default class Game {
             break;
           case "Space":
           case "ArrowUp":
-            this.board.active_tetromino.rotate("right");
+          case "KeyX":
+            this.board.active_tetromino.rotate(
+              "right",
+              this.board.occupied_blocks
+            );
+            this.draw_game();
+            break;
+          case "KeyZ":
+            this.board.active_tetromino.rotate(
+              "left",
+              this.board.occupied_blocks
+            );
             this.draw_game();
             break;
           case "ArrowDown":
