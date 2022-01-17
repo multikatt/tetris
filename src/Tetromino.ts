@@ -1,79 +1,14 @@
 import Block from "./Block";
-import Shapes from "./Shapes";
+import { shape_data, rotation_tests } from "./Tetromino_data";
 
 export default class Tetromino {
   shape: number[][];
   color: string;
   blocks: Block[];
+  type: string;
   rotation_state = 0;
   pos_x = 4;
   pos_y = 1;
-  rotation_tests = {
-    0: {
-      1: [
-        [0, 0],
-        [-1, 0],
-        [-1, -1],
-        [0, 2],
-        [-1, 2],
-      ],
-      3: [
-        [0, 0],
-        [1, 0],
-        [1, -1],
-        [0, 2],
-        [1, 2],
-      ],
-    },
-    1: {
-      0: [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [0, -2],
-        [1, -2],
-      ],
-      2: [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [0, -2],
-        [1, -2],
-      ],
-    },
-    2: {
-      1: [
-        [0, 0],
-        [-1, 0],
-        [-1, -1],
-        [0, 2],
-        [-1, 2],
-      ],
-      3: [
-        [0, 0],
-        [1, 0],
-        [1, -1],
-        [0, 2],
-        [1, 2],
-      ],
-    },
-    3: {
-      2: [
-        [0, 0],
-        [-1, 0],
-        [-1, 1],
-        [0, -2],
-        [-1, -2],
-      ],
-      0: [
-        [0, 0],
-        [-1, 0],
-        [-1, 1],
-        [0, -2],
-        [-1, -2],
-      ],
-    },
-  };
 
   get_random_tetro() {
     let shapes = ["I", "J", "L", "O", "S", "T", "Z"];
@@ -84,8 +19,9 @@ export default class Tetromino {
     if (!type) {
       type = this.get_random_tetro();
     }
-    this.shape = Shapes[type].shape;
-    this.color = Shapes[type].color;
+    this.shape = shape_data[type].shape;
+    this.color = shape_data[type].color;
+    this.type = type;
   }
 
   update_tetromino() {
@@ -119,7 +55,10 @@ export default class Tetromino {
   rotate(dir: "left" | "right" = "right", occupied_blocks?: Block[]) {
     let check_collision = (wanted_state: number, tmp_shape: number[][]) => {
       let found_solution = null;
-      this.rotation_tests[this.rotation_state][wanted_state].some(
+      let testtype: string;
+      if (this.type == "I") testtype = "I";
+      else testtype = "nonI";
+      rotation_tests[testtype][this.rotation_state][wanted_state].some(
         (rot: number[]) => {
           let found_hit = false;
           tmp_shape.forEach((row, irow) => {
