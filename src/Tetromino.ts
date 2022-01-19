@@ -19,8 +19,9 @@ export default class Tetromino {
     if (!type) {
       type = this.get_random_tetro();
     }
-    this.shape = shape_data[type].shape;
-    this.color = shape_data[type].color;
+    this.blocks = [];
+    this.shape = shape_data[type].shape as number[][];
+    this.color = shape_data[type].color as string;
     this.type = type;
   }
 
@@ -53,8 +54,8 @@ export default class Tetromino {
   }
 
   rotate(dir: "left" | "right" = "right", occupied_blocks?: Block[]) {
-    let check_collision = (wanted_state: number, tmp_shape: number[][]) => {
-      let found_solution = null;
+    let check_collision = (wanted_state: number, tmp_shape: number[][]): boolean | number[] => {
+      let found_solution: number[] | boolean = false;
       let testtype: string;
       if (this.type == "I") testtype = "I";
       else testtype = "nonI";
@@ -68,15 +69,16 @@ export default class Tetromino {
                   x: iblock + this.pos_x,
                   y: irow + this.pos_y,
                 };
-
-                if (
-                  occupied_blocks.find(
-                    (b) =>
-                      b.pos.x == blockpos.x + rot[0] &&
-                      b.pos.y == blockpos.y + rot[1]
-                  ) != null
-                ) {
-                  found_hit = true;
+                if (occupied_blocks) {
+                  if (
+                    occupied_blocks.find(
+                      (b) =>
+                        b.pos.x == blockpos.x + rot[0] &&
+                        b.pos.y == blockpos.y + rot[1]
+                    ) != null
+                  ) {
+                    found_hit = true;
+                  }
                 }
               }
             });
@@ -99,12 +101,12 @@ export default class Tetromino {
       wanted_state = (this.rotation_state + 3) % 4;
       tmp_shape = this.shape.map((_x, i, s) => s.map((y) => y[i])).reverse();
     }
-    if (dir == "right") {
+    else { // if (dir == "right") {
       wanted_state = (this.rotation_state + 1) % 4;
       tmp_shape = this.shape.reverse().map((_x, i, s) => s.map((_y) => _y[i]));
     }
     let found_solution = check_collision(wanted_state, tmp_shape);
-    if (found_solution != false) {
+    if (found_solution != false && Array.isArray(found_solution)) {
       this.pos_x += found_solution[0];
       this.pos_y += found_solution[1];
       this.shape = tmp_shape;

@@ -1,4 +1,10 @@
-export let rotation_tests = {
+export const rotation_tests: {
+  [key: string]: {
+    [key: number]: {
+      [key: number]: number[][]
+    }
+  }
+} = {
   nonI: {
     0: {
       1: [
@@ -133,7 +139,11 @@ export let rotation_tests = {
   },
 };
 
-export let shape_data = {
+export const shape_data: {
+  [key: string]: {
+    [key: string]: number[][] | string
+  }
+} = {
   I: {
     shape: [
       [0, 0, 0, 0],

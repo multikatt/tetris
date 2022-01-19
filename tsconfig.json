@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "types": ["chai", "mocha"],
-    "lib": ["es2020", "dom"]
+    "types": ["mocha"],
+    "lib": ["es2020", "dom"],
+    "strict": true
   }
 }

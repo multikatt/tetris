@@ -6,7 +6,6 @@ export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   prev_time: DOMHighResTimeStamp;
-  tetrominos: Tetromino[];
   board: Board;
   speed = 250;
   size = { w: 12, h: 22 };
@@ -14,7 +13,7 @@ export default class Game {
 
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext("2d");
+    this.ctx = this.canvas.getContext("2d")!;
     this.prev_time = 0;
     this.board = new Board();
     this.create_border(this.size.w, this.size.h);
