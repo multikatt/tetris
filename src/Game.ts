@@ -6,15 +6,16 @@ export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   board: Board;
+  speed!: number;
   prev_time: DOMHighResTimeStamp = 0;
   score = 0;
   level = 0;
   total_rows_cleared = 0;
-  speed = 250;
   size = { w: 12, h: 22 };
   game_state: "running" | "stopped" = "running";
 
   constructor() {
+    this.set_speed();
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d")!;
     this.board = new Board();
@@ -63,12 +64,19 @@ export default class Game {
 
       // Fixed-goal leveling:
       this.level = Math.floor(this.total_rows_cleared / 10);
+      this.set_speed();
 
       this.draw_game();
     }
     if (this.game_state === "running")
       window.requestAnimationFrame(this.update);
   };
+
+  set_speed() {
+    // From formula on https://harddrop.com/wiki/Tetris_Worlds
+    // (0.8-((Level-1)*0.007))^(Level-1)
+    this.speed = Math.pow((0.8 - ((this.level) * 0.007)), this.level) * 1000;
+  }
 
   create_border(width: number, height: number) {
     for (let ix = 0; ix < width; ix++) {
