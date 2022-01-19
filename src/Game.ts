@@ -5,8 +5,10 @@ import Tetromino from "./Tetromino";
 export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  prev_time: DOMHighResTimeStamp;
   board: Board;
+  prev_time: DOMHighResTimeStamp = 0;
+  score = 0;
+  level = 0;
   speed = 250;
   size = { w: 12, h: 22 };
   game_state: "running" | "stopped" = "running";
@@ -14,7 +16,6 @@ export default class Game {
   constructor() {
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d")!;
-    this.prev_time = 0;
     this.board = new Board();
     this.create_border(this.size.w, this.size.h);
   }
@@ -118,6 +119,11 @@ export default class Game {
             b.pos.y += 1;
           });
       });
+
+      // Using original Nintendo scoring system
+      let score_per_line = [40, 100, 300, 1200];
+      this.score += score_per_line[full_rows.length - 1] * (this.level + 1);
+
       return true;
     }
 
@@ -179,6 +185,10 @@ export default class Game {
   draw_game() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.draw_tetrominos();
+    let score_el = document.getElementById("Score")!;
+    score_el.innerHTML = this.score.toString();
+    let level_el = document.getElementById("Level")!;
+    level_el.innerHTML = this.level.toString();
   }
 
   draw_tetrominos() {

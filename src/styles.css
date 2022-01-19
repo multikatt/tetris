@@ -2,11 +2,21 @@
   font-size: 10px;
 }
 
+#GameInfo {
+  position: absolute;
+  top: 8px;
+  left: 290px;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
 #NextPiece {
   border: 9px solid darkblue;
-    height: 78px;
-    width: 115px;
-    position: absolute;
-    top: 8px;
-    left: 290px;
+  border-radius: 20px;
+  height: 78px;
+  width: 115px;
+}
+
+#TextWrapper {
+  padding-top: 10px;
 }
