@@ -11,10 +11,10 @@
 }
 
 #NextPiece {
-  border: 9px solid darkblue;
+  border: 10px solid darkblue;
   border-radius: 20px;
-  height: 78px;
-  width: 115px;
+  height: 80px;
+  width: 120px;
 }
 
 #TextWrapper {
