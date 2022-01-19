@@ -9,6 +9,7 @@ export default class Game {
   prev_time: DOMHighResTimeStamp = 0;
   score = 0;
   level = 0;
+  total_rows_cleared = 0;
   speed = 250;
   size = { w: 12, h: 22 };
   game_state: "running" | "stopped" = "running";
@@ -59,6 +60,10 @@ export default class Game {
           this.spawn_tetromino();
         }
       }
+
+      // Fixed-goal leveling:
+      this.level = Math.floor(this.total_rows_cleared / 10);
+
       this.draw_game();
     }
     if (this.game_state === "running")
@@ -123,6 +128,8 @@ export default class Game {
       // Using original Nintendo scoring system
       let score_per_line = [40, 100, 300, 1200];
       this.score += score_per_line[full_rows.length - 1] * (this.level + 1);
+
+      this.total_rows_cleared += full_rows.length;
 
       return true;
     }
