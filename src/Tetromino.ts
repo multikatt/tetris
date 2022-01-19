@@ -20,7 +20,7 @@ export default class Tetromino {
       type = this.get_random_tetro();
     }
     this.blocks = [];
-    this.shape = shape_data[type].shape as number[][];
+    this.shape = [...shape_data[type].shape as number[][]];
     this.color = shape_data[type].color as string;
     this.type = type;
   }
