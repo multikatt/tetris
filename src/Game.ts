@@ -21,11 +21,25 @@ export default class Game {
 
   start() {
     window.requestAnimationFrame(this.update);
-    const tetro = new Tetromino();
-    tetro.update_tetromino();
-    this.board.active_tetromino = tetro;
+    this.spawn_tetromino();
     this.draw_game();
     this.input();
+  }
+
+  spawn_tetromino() {
+    this.board.active_tetromino = this.board.next_tetromino === undefined ? new Tetromino() : this.board.next_tetromino;
+    this.board.next_tetromino = new Tetromino();
+    if (this.board.next_tetromino.type == "O") {
+      this.board.next_tetromino.pos_x = 15;
+    } else if (this.board.next_tetromino.type == "I") {
+      this.board.next_tetromino.pos_x = 14;
+    } else {
+      this.board.next_tetromino.pos_x = 14.5;
+    }
+
+    this.board.next_tetromino.update_tetromino();
+    this.board.active_tetromino.pos_x = 4;
+    this.board.active_tetromino.update_tetromino();
   }
 
   update = (timestamp: DOMHighResTimeStamp) => {
@@ -41,9 +55,7 @@ export default class Game {
           if (!this.contains_full_rows()) {
             this.board.add_to_occupied_blocks(this.board.active_tetromino);
           }
-          const tetro = new Tetromino();
-          tetro.update_tetromino();
-          this.board.active_tetromino = tetro;
+          this.spawn_tetromino();
         }
       }
       this.draw_game();
@@ -172,6 +184,7 @@ export default class Game {
   draw_tetrominos() {
     this.board.active_tetromino.blocks.forEach((b) => this.draw_block(b));
     this.board.occupied_blocks.forEach((b) => this.draw_block(b));
+    this.board.next_tetromino.blocks.forEach((b) => this.draw_block(b));
   }
 
   draw_block(block: Block) {

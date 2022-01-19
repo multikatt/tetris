@@ -3,6 +3,7 @@ import Block from "./Block";
 
 export default class Board {
   active_tetromino!: Tetromino;
+  next_tetromino!: Tetromino;
 
   constructor(public occupied_blocks: Block[] = []) {}
 
