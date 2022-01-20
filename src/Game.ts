@@ -66,7 +66,9 @@ export default class Game {
       this.level = Math.floor(this.total_rows_cleared / 10);
       this.set_speed();
 
-      this.draw_game();
+      if (this.game_state === "running") {
+        this.draw_game();
+      }
     }
     if (this.game_state === "running")
       window.requestAnimationFrame(this.update);
