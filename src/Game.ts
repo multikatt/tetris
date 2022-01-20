@@ -145,35 +145,35 @@ export default class Game {
     return false;
   }
 
-  check_collision(dir: "down" | "left" | "right"): boolean {
+  check_collision(dir: "left" | "right" | "down"): boolean {
     let current_t = this.board.active_tetromino;
     let can_move = true;
-    let can_move_down = (blockpos: { x: number; y: number }): boolean => {
-      this.board.occupied_blocks.forEach((b) => {
-        if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
-          can_move = false;
-        }
-      });
-      return can_move;
-    };
 
-    let can_move_sideways = (
+    const find_collision = (
       blockpos: { x: number; y: number },
-      dir: "left" | "right"
+      dir: "left" | "right" | "down"
     ): boolean => {
-      this.board.occupied_blocks.forEach((b) => {
-        if (dir == "left") {
-          if (b.pos.y == blockpos.y && b.pos.x == blockpos.x - 1) {
-            can_move = false;
-          }
-        } else if (dir == "right") {
-          if (b.pos.y == blockpos.y && b.pos.x == blockpos.x + 1) {
-            can_move = false;
-          }
+      let found_hit = false;
+      this.board.occupied_blocks.some((b) => {
+        switch (dir) {
+          case "left":
+            if (b.pos.y == blockpos.y && b.pos.x == blockpos.x - 1) {
+              found_hit = true;
+            }
+            break;
+          case "right":
+            if (b.pos.y == blockpos.y && b.pos.x == blockpos.x + 1) {
+              found_hit = true;
+            }
+            break;
+          case "down":
+            if (b.pos.x == blockpos.x && b.pos.y == blockpos.y + 1) {
+              found_hit = true;
+            }
+            break;
         }
       });
-
-      return can_move;
+      return found_hit;
     };
 
     current_t.shape.forEach((row, irow) => {
@@ -184,11 +184,11 @@ export default class Game {
             y: irow + current_t.pos_y,
           };
 
-          if (dir == "left" && !can_move_sideways(blockpos, "left")) {
+          if (dir == "left" && find_collision(blockpos, "left")) {
             can_move = false;
-          } else if (dir == "right" && !can_move_sideways(blockpos, "right")) {
+          } else if (dir == "right" && find_collision(blockpos, "right")) {
             can_move = false;
-          } else if (dir == "down" && !can_move_down(blockpos)) {
+          } else if (dir == "down" && find_collision(blockpos, "down")) {
             can_move = false;
           }
         }
