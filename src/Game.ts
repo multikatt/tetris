@@ -225,44 +225,59 @@ export default class Game {
   }
 
   input() {
-    window.addEventListener("keyup", (key) => {
-      if (this.game_state == "running") {
-        switch (key.code) {
-          case "ArrowLeft":
-            if (this.check_collision("left"))
-              this.board.active_tetromino.move("left");
-            this.draw_game();
-            break;
-          case "ArrowRight":
-            if (this.check_collision("right"))
-              this.board.active_tetromino.move("right");
-            this.draw_game();
-            break;
-          case "Space":
-          case "ArrowUp":
-          case "KeyX":
-            this.board.active_tetromino.rotate(
-              "right",
-              this.board.occupied_blocks
-            );
-            this.draw_game();
-            break;
-          case "KeyZ":
-            this.board.active_tetromino.rotate(
-              "left",
-              this.board.occupied_blocks
-            );
-            this.draw_game();
-            break;
-          case "ArrowDown":
-            while (this.check_collision("down"))
-              this.board.active_tetromino.move("down");
-            this.draw_game();
-            break;
-          default:
-            break;
+    let pressed_key: { [key: string]: boolean } = {};
+
+    let keydown = (key: KeyboardEvent) => {
+      pressed_key[key.code] = true;
+    }
+    let keyup = (key: KeyboardEvent) => {
+      pressed_key[key.code] = false;
+    }
+
+    let handleKeys = () => {
+
+      if (Object.keys(pressed_key).length > 0 && this.game_state === "running") {
+        if (pressed_key["ArrowLeft"]) {
+          if (this.check_collision("left"))
+            this.board.active_tetromino.move("left");
+        }
+        if (pressed_key["ArrowRight"]) {
+          if (this.check_collision("right"))
+            this.board.active_tetromino.move("right");
+        }
+        if (pressed_key["ArrowDown"]) {
+          if (this.check_collision("down"))
+            this.board.active_tetromino.move("down");
         }
       }
-    });
+      this.draw_game();
+    }
+
+    window.addEventListener("keydown", (key) => {
+      if (this.game_state == "running") {
+        if (key.code === "ArrowUp" || key.code === "KeyX") {
+          this.board.active_tetromino.rotate(
+            "right",
+            this.board.occupied_blocks
+          );
+        };
+        if (key.code === "KeyZ") {
+          this.board.active_tetromino.rotate(
+            "left",
+            this.board.occupied_blocks
+          );
+        }
+        if (key.code === "Space" && key.repeat === false) {
+          while (this.check_collision("down"))
+            this.board.active_tetromino.move("down");
+        }
+      }
+      this.draw_game();
+    })
+
+    window.addEventListener("keydown", keydown);
+    window.addEventListener("keyup", keyup);
+
+    window.setInterval(handleKeys, 75);
   }
 }
