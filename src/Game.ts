@@ -1,30 +1,36 @@
 import Block from "./Block";
 import Board from "./Board";
 import Tetromino from "./Tetromino";
+import Menu from "./Menu";
+
+export interface game_state_i {
+  state: "running" | "paused" | "stopped" | "newgame"
+  score: number
+  level: number
+}
 
 export default class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   board: Board;
   speed!: number;
+  menu: Menu;
   prev_time: DOMHighResTimeStamp = 0;
-  score = 0;
-  level = 0;
   total_rows_cleared = 0;
   size = { w: 12, h: 22 };
-  game_state: "running" | "stopped" = "running";
+  game_state: game_state_i = { state: "stopped", score: 0, level: 0 };
 
   constructor() {
     this.set_speed();
     this.canvas = document.getElementById("Game") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d")!;
+    this.menu = new Menu(this.game_state);
     this.board = new Board();
     this.create_border(this.size.w, this.size.h);
   }
 
   start() {
     window.requestAnimationFrame(this.update);
-    this.spawn_tetromino();
     this.draw_game();
     this.input();
   }
@@ -47,44 +53,61 @@ export default class Game {
 
   update = (timestamp: DOMHighResTimeStamp) => {
     let elapsed = timestamp - this.prev_time;
-    if (elapsed > this.speed) {
-      this.prev_time = timestamp;
-      if (this.check_collision("down")) {
-        this.board.active_tetromino.move("down");
-      } else {
-        if (this.board.active_tetromino.pos_y === 1) {
-          this.game_state = "stopped";
+
+    if (this.game_state.state === "newgame") {
+      this.new_game();
+    }
+
+    if (this.game_state.state === "running") {
+      if (elapsed > this.speed) {
+        this.prev_time = timestamp;
+        if (this.check_collision("down")) {
+          this.board.active_tetromino.move("down");
         } else {
-          if (!this.contains_full_rows()) {
-            this.board.add_to_occupied_blocks(this.board.active_tetromino);
+          if (this.board.active_tetromino.pos_y === 1) {
+            this.game_state.state = "stopped";
+            this.menu.game_over();
+          } else {
+            if (!this.contains_full_rows()) {
+              this.board.add_to_occupied_blocks(this.board.active_tetromino);
+            }
+            this.spawn_tetromino();
           }
-          this.spawn_tetromino();
         }
-      }
 
-      // Fixed-goal leveling:
-      this.level = Math.floor(this.total_rows_cleared / 10);
-      this.set_speed();
+        // Fixed-goal leveling:
+        this.game_state.level = Math.floor(this.total_rows_cleared / 10);
+        this.set_speed();
 
-      if (this.game_state === "running") {
         this.draw_game();
       }
     }
-    if (this.game_state === "running")
-      window.requestAnimationFrame(this.update);
+    window.requestAnimationFrame(this.update);
   };
+
+  new_game() {
+    console.log(this.game_state.state);
+    if (this.game_state.state === "newgame") {
+      this.board.occupied_blocks.blocks = [];
+      this.create_border(this.size.w, this.size.h);
+      this.game_state.score = 0;
+      this.game_state.level = 0;
+      this.spawn_tetromino();
+      this.game_state.state = "running";
+    }
+  }
 
   set_speed() {
     // From formula on https://harddrop.com/wiki/Tetris_Worlds
     // (0.8-((Level-1)*0.007))^(Level-1)
-    this.speed = Math.pow((0.8 - ((this.level) * 0.007)), this.level) * 1000;
+    this.speed = Math.pow((0.8 - ((this.game_state.level) * 0.007)), this.game_state.level) * 1000;
   }
 
   create_border(width: number, height: number) {
     for (let ix = 0; ix < width; ix++) {
       for (let iy = 0; iy < height; iy++) {
         if (iy == 0 || iy == height - 1 || ix == 0 || ix == width - 1) {
-          this.board.occupied_blocks.push(
+          this.board.occupied_blocks.blocks.push(
             new Block({ x: ix, y: iy }, "grey", true)
           );
         }
@@ -108,7 +131,7 @@ export default class Game {
       );
 
       // count number of other blocks
-      let current_row = this.board.occupied_blocks.filter(
+      let current_row = this.board.occupied_blocks.blocks.filter(
         (bb) => bb.pos.y == block.pos.y
       );
 
@@ -125,10 +148,10 @@ export default class Game {
 
       // filter out full rows
       full_rows.forEach((r) => {
-        this.board.occupied_blocks = this.board.occupied_blocks.filter(
+        this.board.occupied_blocks.blocks = this.board.occupied_blocks.blocks.filter(
           (b) => b.pos.y != r || b.border_block == true
         );
-        this.board.occupied_blocks
+        this.board.occupied_blocks.blocks
           .filter((b) => b.pos.y < r && b.border_block == false)
           .forEach((b) => {
             b.pos.y += 1;
@@ -137,7 +160,7 @@ export default class Game {
 
       // Using original Nintendo scoring system
       let score_per_line = [40, 100, 300, 1200];
-      this.score += score_per_line[full_rows.length - 1] * (this.level + 1);
+      this.game_state.score += score_per_line[full_rows.length - 1] * (this.game_state.level + 1);
 
       this.total_rows_cleared += full_rows.length;
 
@@ -156,7 +179,7 @@ export default class Game {
       dir: "left" | "right" | "down"
     ): boolean => {
       let found_hit = false;
-      this.board.occupied_blocks.some((b) => {
+      this.board.occupied_blocks.blocks.some((b) => {
         switch (dir) {
           case "left":
             if (b.pos.y == blockpos.y && b.pos.x == blockpos.x - 1) {
@@ -203,15 +226,19 @@ export default class Game {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.draw_tetrominos();
     let score_el = document.getElementById("Score")!;
-    score_el.innerHTML = this.score.toString();
+    score_el.innerHTML = this.game_state.score.toString();
     let level_el = document.getElementById("Level")!;
-    level_el.innerHTML = this.level.toString();
+    level_el.innerHTML = this.game_state.level.toString();
   }
 
   draw_tetrominos() {
-    this.board.active_tetromino.blocks.forEach((b) => this.draw_block(b));
-    this.board.occupied_blocks.forEach((b) => this.draw_block(b));
-    this.board.next_tetromino.blocks.forEach((b) => this.draw_block(b));
+    ["active_tetromino", "occupied_blocks", "next_tetromino"].forEach(action => {
+      if (this.board[action] !== undefined) {
+        this.board[action].blocks.forEach((b: Block) => {
+          this.draw_block(b);
+        })
+      }
+    })
   }
 
   draw_block(block: Block) {
@@ -236,7 +263,7 @@ export default class Game {
 
     let handleKeys = () => {
 
-      if (Object.keys(pressed_key).length > 0 && this.game_state === "running") {
+      if (Object.keys(pressed_key).length > 0 && this.game_state.state === "running") {
         if (pressed_key["ArrowLeft"]) {
           if (this.check_collision("left"))
             this.board.active_tetromino.move("left");
@@ -254,17 +281,17 @@ export default class Game {
     }
 
     window.addEventListener("keydown", (key) => {
-      if (this.game_state == "running") {
+      if (this.game_state.state === "running") {
         if (key.code === "ArrowUp" || key.code === "KeyX") {
           this.board.active_tetromino.rotate(
             "right",
-            this.board.occupied_blocks
+            this.board.occupied_blocks.blocks
           );
         };
         if (key.code === "KeyZ") {
           this.board.active_tetromino.rotate(
             "left",
-            this.board.occupied_blocks
+            this.board.occupied_blocks.blocks
           );
         }
         if (key.code === "Space" && key.repeat === false) {
